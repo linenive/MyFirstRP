@@ -9,9 +9,10 @@ float4 UnlitPassVertex(float3 positionOS : POSITION) : SV_POSITION
     return TransformWorldToHClip(positionWS);
 }
 
+float4 _BaseColor;
 float4 UnlitPassFragment() : SV_TARGET 
 {
-    return float4(1.0f, 0.0f, 0.0f, 1.0f);
+    return _BaseColor;
 }
 
 #endif
