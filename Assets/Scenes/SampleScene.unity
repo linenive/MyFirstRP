@@ -242,6 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 0.963735, g: 1, b: 0, a: 1}
+  cutoff: 0.5
 --- !u!1 &533883009
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,6 +364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 1, g: 1, b: 1, a: 1}
+  cutoff: 0.5
 --- !u!1 &613850418
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,8 +394,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa6a5741f99ed1e488e4422eb3f33057, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: 0}
-  material: {fileID: 0}
+  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: 4bb95dd44bc791f478b651bdaa4562b7, type: 2}
 --- !u!4 &613850420
 Transform:
   m_ObjectHideFlags: 0
@@ -528,6 +530,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 0.22899188, g: 0.18660253, b: 0.8018868, a: 1}
+  cutoff: 0.5
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -755,6 +758,7 @@ GameObject:
   - component: {fileID: 892630651}
   - component: {fileID: 892630650}
   - component: {fileID: 892630649}
+  - component: {fileID: 892630653}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -848,6 +852,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1150355841}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &892630653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892630648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9645ae99438f0284c98c32992a6052b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseColor: {r: 0.88342613, g: 0.6761006, b: 1, a: 1}
+  cutoff: 0.966
 --- !u!1 &939149289
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,6 +985,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 0.19496846, g: 0.83129364, b: 1, a: 1}
+  cutoff: 0.5
 --- !u!1 &952254930
 GameObject:
   m_ObjectHideFlags: 0
@@ -1086,6 +1105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 0.9056604, g: 0.24492694, b: 0.24492694, a: 1}
+  cutoff: 0.5
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,7 +1171,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 51
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1388,7 +1408,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4c23d51b7beed5c4eb65b5f80bd39ffc, type: 2}
+  - {fileID: 2100000, guid: 4bb95dd44bc791f478b651bdaa4562b7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1445,7 +1465,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9645ae99438f0284c98c32992a6052b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 0.29874206, g: 1, b: 0.6261787, a: 1}
+  baseColor: {r: 0.35686275, g: 0.16556735, b: 0.12549022, a: 1}
+  cutoff: 0.231
 --- !u!1 &1379943514
 GameObject:
   m_ObjectHideFlags: 0
@@ -1746,6 +1767,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 0.90906054, g: 0.35534585, b: 1, a: 1}
+  cutoff: 0.5
 --- !u!1 &1924277151
 GameObject:
   m_ObjectHideFlags: 0
@@ -1914,7 +1936,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4c23d51b7beed5c4eb65b5f80bd39ffc, type: 2}
+  - {fileID: 2100000, guid: 4bb95dd44bc791f478b651bdaa4562b7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1971,7 +1993,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9645ae99438f0284c98c32992a6052b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 0.8700311, b: 0.16666657, a: 1}
+  baseColor: {r: 1, g: 0.8700311, b: 0.16666657, a: 0.46666667}
+  cutoff: 0.418
 --- !u!1 &2091531879
 GameObject:
   m_ObjectHideFlags: 0

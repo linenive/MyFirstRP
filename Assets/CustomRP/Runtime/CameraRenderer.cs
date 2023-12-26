@@ -38,10 +38,7 @@ public partial class CameraRenderer
 
     private void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
-        var sortingSettings = new SortingSettings(camera)
-        {
-            criteria = SortingCriteria.CommonOpaque
-        };
+        var sortingSettings = new SortingSettings(camera);
         var drawingSettings = new DrawingSettings(
             unlitShaderTagId, sortingSettings
         )
@@ -54,7 +51,7 @@ public partial class CameraRenderer
         this.context.DrawRenderers(
             cullingResults, ref drawingSettings, ref filteringSettings);
 
-        this.context.DrawSkybox(camera);
+        // this.context.DrawSkybox(camera);
 
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
@@ -80,7 +77,7 @@ public partial class CameraRenderer
         CameraClearFlags flags = camera.clearFlags;
         this.buffer.ClearRenderTarget(
             flags <= CameraClearFlags.Depth,
-            flags <= CameraClearFlags.Color,
+            flags == CameraClearFlags.Color,
             flags == CameraClearFlags.Color ?
                 camera.backgroundColor.linear : Color.clear);
         this.buffer.BeginSample(SampleName);
