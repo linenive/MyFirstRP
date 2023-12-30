@@ -51,7 +51,7 @@ public partial class CameraRenderer
         this.context.DrawRenderers(
             cullingResults, ref drawingSettings, ref filteringSettings);
 
-        // this.context.DrawSkybox(camera);
+        this.context.DrawSkybox(camera);
 
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
