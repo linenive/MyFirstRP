@@ -15,12 +15,14 @@ UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 struct Attributes
 {
     float3 positionOS : POSITION;
+    float3 normalOS : NORMAL;
     float2 baseUV : TEXCOORD0;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct Varyings {
     float4 positionCS : SV_POSITION;
+    float3 normalWS : VAR_NORMAL;
     float2 baseUV : VAR_BASE_UV;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -31,6 +33,7 @@ Varyings LitPassVertex (Attributes input) {
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     float3 positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(positionWS);
+    output.normalWS = TransformObjectToWorldNormal(input.normalOS);
 
     // _BaseMap_ST 에 저장된 눈금과 오프셋 적용. 조각 단위가 아니라 정점 단위로 수행할 수 있다.
     // 눈금은 xy 에 저장되고 오프셋은 zw 에 저장된다.
@@ -48,6 +51,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     #if defined(_CLIPPING)
         clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
     #endif
+    base.rgb = normalize(input.normalWS);
     return base;
 }
 
