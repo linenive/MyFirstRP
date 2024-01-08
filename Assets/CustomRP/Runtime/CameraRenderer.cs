@@ -9,6 +9,7 @@ public partial class CameraRenderer
     private CullingResults cullingResults;
 
     private static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+    private static ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");
     private const string bufferName = "Render Camera";
 
     private CommandBuffer buffer = new CommandBuffer
@@ -46,6 +47,7 @@ public partial class CameraRenderer
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+        drawingSettings.SetShaderPassName(1, litShaderTagId);
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
         this.context.DrawRenderers(
