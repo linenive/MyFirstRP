@@ -17,6 +17,8 @@ public partial class CameraRenderer
         name = bufferName
     };
 
+    private Lighting lighting = new();
+
     public void Render(
         ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
     {
@@ -31,6 +33,7 @@ public partial class CameraRenderer
         }
 
         this.Setup();
+        lighting.Setup(context, cullingResults);
         this.DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         this.DrawUnsupportedShaders();
         this.DrawGizmos();
