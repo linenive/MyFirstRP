@@ -4,6 +4,7 @@
 #include "../ShaderLibrary/Common.hlsl"
 #include "../ShaderLibrary/Surface.hlsl"
 #include "../ShaderLibrary/Light.hlsl"
+#include "../ShaderLibrary/BRDF.hlsl"
 #include "../ShaderLibrary/Lighting.hlsl"
 
 TEXTURE2D(_BaseMap);
@@ -65,7 +66,8 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.smoothness =
 		UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
     
-    float3 color = GetLighting(surface);
+    BRDF brdf = GetBRDF(surface);
+    float3 color = GetLighting(surface, brdf);
     return float4(color, surface.alpha);
 }
 
