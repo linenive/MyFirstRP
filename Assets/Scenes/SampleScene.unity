@@ -1028,7 +1028,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 1, g: 0.88066393, b: 0.7882353, a: 1}
-  cutoff: 0.31
+  cutoff: 0.938
   metallic: 0.08
   smoothness: 0.96
 --- !u!135 &473352064

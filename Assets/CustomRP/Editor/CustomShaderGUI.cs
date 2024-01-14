@@ -27,7 +27,10 @@ public class CustomShaderGUI : ShaderGUI
             this.OpaquePreset();
             this.ClipPreset();
             this.FadePreset();
-            this.TransparentPreset();
+            if (this.HasPremultiplyAlpha)
+            {
+                this.TransparentPreset();
+            }
         }
     }
 
@@ -108,6 +111,8 @@ public class CustomShaderGUI : ShaderGUI
         set => SetProperty("_ZWrite", value ? 1f : 0f);
     }
 
+    private bool HasPremultiplyAlpha => HasProperty("_PremulAlpha");
+
     private RenderQueue RenderQueue
     {
         set
@@ -140,6 +145,9 @@ public class CustomShaderGUI : ShaderGUI
         }
         return false;
     }
+
+    private bool HasProperty(string name) =>
+        FindProperty(name, properties, propertyIsMandatory: false) != null;
 
     private void SetKeyword(string keyword, bool enabled)
     {
