@@ -129,9 +129,16 @@ public class CustomShaderGUI : ShaderGUI
         return false;
     }
 
-    private void SetProperty(string name, float value)
+    private bool SetProperty(string name, float value)
     {
-        FindProperty(name, properties).floatValue = value;
+        // propertyIsMandatory 가 true 면 익셉션을 발생시킨다.
+        var property = FindProperty(name, properties, propertyIsMandatory: false);
+        if (property != null)
+        {
+            property.floatValue = value;
+            return true;
+        }
+        return false;
     }
 
     private void SetKeyword(string keyword, bool enabled)
@@ -154,7 +161,9 @@ public class CustomShaderGUI : ShaderGUI
 
     private void SetProperty(string name, string keyword, bool value)
     {
-        this.SetProperty(name, value ? 1f : 0f);
-        this.SetKeyword(keyword, value);
+        if (this.SetProperty(name, value ? 1f : 0f))
+        {
+            this.SetKeyword(keyword, value);
+        }
     }
 }
