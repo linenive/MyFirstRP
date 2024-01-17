@@ -74,3 +74,5 @@ crashlytics-build.properties
 /.vscode/
 /Outputs/
 Packages/packages-lock.json
+
+/[Aa]ssets/PrivateAssets/
