@@ -68,7 +68,9 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.smoothness =
 		UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
     
-    #if defined(_PREMULTIPLY_ALPHA)
+    #if defined(_TEST_SHADER_EFFECT)
+        BRDF brdf = GetBRDFWithTexture(surface, baseMap);
+    #elif defined(_PREMULTIPLY_ALPHA)
         BRDF brdf = GetBRDF(surface, true);
     #else
         BRDF brdf = GetBRDF(surface);

@@ -12,6 +12,7 @@ Shader "CustomRP/Lit"
         [Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha ("Premultiply Alpha", Float) = 0
         _Metallic ("Metallic", Range(0, 1)) = 0
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
+        [Toggle(_TEST_SHADER_EFFECT)] _TestShaderEffect ("Test Shader Effect", Float) = 0
     }
     SubShader
     {
@@ -28,6 +29,7 @@ Shader "CustomRP/Lit"
             #pragma target 3.5
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _PREMULTIPLY_ALPHA
+            #pragma shader_feature _TEST_SHADER_EFFECT
             #pragma multi_compile_instancing
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment

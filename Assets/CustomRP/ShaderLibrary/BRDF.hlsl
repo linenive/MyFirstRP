@@ -30,6 +30,31 @@ BRDF GetBRDF (inout Surface surface, bool applyAlphaToDiffuse = false) {
 	return brdf;
 }
 
+BRDF GetBRDFWithTexture (inout Surface surface, float4 baseMap, bool applyAlphaToDiffuse = false) {
+	BRDF brdf;
+
+	float metallic = surface.metallic;
+	float smoothness = surface.smoothness;
+	if (baseMap.b > baseMap.r) {
+		metallic = baseMap.b;
+		smoothness = 0.9;
+	} 
+
+	brdf.diffuse = surface.color * OneMinusReflectivity(metallic);
+	
+	if (applyAlphaToDiffuse) {
+		brdf.diffuse *= surface.alpha;
+	
+	}
+	
+    // 나가는 빛의 양이 들어오는 빛의 양을 초과할 수 없으므로.
+	brdf.specular = lerp(MIN_REFLECTIVITY, surface.color, metallic);
+	float perceptualRoughness =
+		PerceptualSmoothnessToPerceptualRoughness(smoothness);
+	brdf.roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+	return brdf;
+}
+
 // 너무 복잡해서 튜토리얼에서는 생략되었다. 
 float SpecularStrength (Surface surface, BRDF brdf, Light light) {
 	float3 h = SafeNormalize(light.direction + surface.viewDirection);

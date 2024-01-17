@@ -21,6 +21,9 @@ public class CustomShaderGUI : ShaderGUI
         this.properties = properties;
 
         EditorGUILayout.Space();
+        this.TestShaderEffectPreset();
+
+        EditorGUILayout.Space();
         this.showPresets = EditorGUILayout.Foldout(showPresets, "Presets", true);
         if (showPresets)
         {
@@ -32,6 +35,25 @@ public class CustomShaderGUI : ShaderGUI
                 this.TransparentPreset();
             }
         }
+    }
+
+    private void TestShaderEffectPreset()
+    {
+        if (GetProperty("_TestShaderEffect"))
+        {
+            if (PresetButton("Test Shader Effect 끄기"))
+            {
+                TestShaderEffect = false;
+            }
+        }
+        else
+        {
+            if (PresetButton("Test Shader Effect 켜기"))
+            {
+                TestShaderEffect = true;
+            }
+        }
+
     }
 
     private void OpaquePreset()
@@ -84,6 +106,11 @@ public class CustomShaderGUI : ShaderGUI
             ZWrite = false;
             RenderQueue = RenderQueue.Transparent;
         }
+    }
+
+    private bool TestShaderEffect
+    {
+        set => SetProperty("_TestShaderEffect", "_TEST_SHADER_EFFECT", value);
     }
 
     private bool Clipping
@@ -173,5 +200,11 @@ public class CustomShaderGUI : ShaderGUI
         {
             this.SetKeyword(keyword, value);
         }
+    }
+
+    private bool GetProperty(string name)
+    {
+        var property = FindProperty(name, properties, propertyIsMandatory: false);
+        return property != null && property.floatValue == 1f;
     }
 }
