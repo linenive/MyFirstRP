@@ -18,4 +18,21 @@ float3 GetLighting (Surface surface, BRDF brdf) {
 	return color;
 }
 
+float3 GetLightingTest (Surface surface, BRDF brdf, float4 testMap) {
+    float3 color = 0.0;
+
+    if(testMap.a > 0.5) { 
+        color += GetLighting(surface, brdf, GetDirectionalLight(0));
+
+        color += GetLighting(surface, brdf, GetDirectionalLight(1));
+    }
+    else {
+        for (int i = 0; i < GetDirectionalLightCount(); i++) 
+        {
+            color += GetLighting(surface, brdf, GetDirectionalLight(i));
+        }
+    }
+	return color;
+}
+
 #endif

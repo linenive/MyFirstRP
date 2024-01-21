@@ -13,6 +13,7 @@ Shader "CustomRP/Lit"
         _Metallic ("Metallic", Range(0, 1)) = 0
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
         [Toggle(_TEST_SHADER_EFFECT)] _TestShaderEffect ("Test Shader Effect", Float) = 0
+        _TestMap("Test Map", 2D) = "white" {}
     }
     SubShader
     {

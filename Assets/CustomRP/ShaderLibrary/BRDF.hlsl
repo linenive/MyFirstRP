@@ -30,14 +30,47 @@ BRDF GetBRDF (inout Surface surface, bool applyAlphaToDiffuse = false) {
 	return brdf;
 }
 
+// 7주차 응용. 테스트 맵을 사용하여 별도 반사 효과를 구현한다.
+BRDF GetBRDFWithTestMap (inout Surface surface, float4 testMap, bool applyAlphaToDiffuse = false) {
+	BRDF brdf;
+
+	if(testMap.a > 0.5) {
+		brdf.diffuse = surface.color * OneMinusReflectivity(0);
+		if (applyAlphaToDiffuse) {
+			brdf.diffuse *= surface.alpha;
+		
+		}
+		brdf.specular = lerp(0.2, surface.color, 0);
+		float perceptualRoughness =
+			PerceptualSmoothnessToPerceptualRoughness(0.9);
+		brdf.roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+		return brdf;
+	} else {
+		brdf.diffuse = surface.color * OneMinusReflectivity(surface.metallic);
+		if (applyAlphaToDiffuse) {
+			brdf.diffuse *= surface.alpha;
+		
+		}
+		
+		// 나가는 빛의 양이 들어오는 빛의 양을 초과할 수 없으므로.
+		brdf.specular = lerp(MIN_REFLECTIVITY, surface.color, surface.metallic);
+		float perceptualRoughness =
+			PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);
+		brdf.roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+	}
+
+	return brdf;
+}
+
+// 7주차 응용. 텍스쳐의 파란 부분을 특정한 반사율로 고정한다.
 BRDF GetBRDFWithTexture (inout Surface surface, float4 baseMap, bool applyAlphaToDiffuse = false) {
 	BRDF brdf;
 
 	float metallic = surface.metallic;
 	float smoothness = surface.smoothness;
 	if (baseMap.b > baseMap.r) {
-		metallic = baseMap.b;
-		smoothness = 0.9;
+		metallic = 0.0;
+		smoothness = 0.95;
 	} 
 
 	brdf.diffuse = surface.color * OneMinusReflectivity(metallic);

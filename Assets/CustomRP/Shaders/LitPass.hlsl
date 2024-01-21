@@ -9,6 +9,8 @@
 
 TEXTURE2D(_BaseMap);
 SAMPLER(sampler_BaseMap);
+TEXTURE2D(_TestMap);
+SAMPLER(sampler_TestMap);
 
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
@@ -69,12 +71,14 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 		UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
     
     #if defined(_TEST_SHADER_EFFECT)
-        BRDF brdf = GetBRDFWithTexture(surface, baseMap);
+        float4 testMap = SAMPLE_TEXTURE2D(_TestMap, sampler_TestMap, input.baseUV);
+        BRDF brdf = GetBRDFWithTestMap(surface, testMap);
     #elif defined(_PREMULTIPLY_ALPHA)
         BRDF brdf = GetBRDF(surface, true);
     #else
         BRDF brdf = GetBRDF(surface);
     #endif
+
     float3 color = GetLighting(surface, brdf);
     return float4(color, surface.alpha);
 }
