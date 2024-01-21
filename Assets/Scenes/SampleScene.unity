@@ -578,19 +578,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.818
+      value: -1.957
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.923
+      value: -0.914
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.168
+      value: -2.16
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.22290266
+      value: 0.122807
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalRotation.x
@@ -598,7 +598,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.9748407
+      value: 0.99243057
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalRotation.z
@@ -610,7 +610,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -154.241
+      value: -1994.108
       objectReference: {fileID: 0}
     - target: {fileID: 5141733761644226616, guid: cc0fa3b79ac66434c9c13f6b2f873b69, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -752,7 +752,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseColor: {r: 0, g: 0, b: 0, a: 1}
   cutoff: 0.5
-  metallic: 0.093
+  metallic: 0.761
   smoothness: 0
 --- !u!114 &195361346
 MonoBehaviour:

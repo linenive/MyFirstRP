@@ -14,6 +14,7 @@ Shader "CustomRP/Lit"
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
         [Toggle(_TEST_SHADER_EFFECT)] _TestShaderEffect ("Test Shader Effect", Float) = 0
         _TestMap("Test Map", 2D) = "white" {}
+        [Toggle(_HEIGHT_BRDF)] _HeightBRDF ("HeightBRDF", Float) = 0
     }
     SubShader
     {
@@ -31,6 +32,7 @@ Shader "CustomRP/Lit"
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _PREMULTIPLY_ALPHA
             #pragma shader_feature _TEST_SHADER_EFFECT
+            #pragma shader_feature _HEIGHT_BRDF
             #pragma multi_compile_instancing
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment

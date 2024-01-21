@@ -7,6 +7,14 @@ float OneMinusReflectivity (float metallic) {
 	return range - metallic * range;
 }
 
+float customFunction(float x) {
+    if (x > 0.9 && x < 1.1) {
+        return 1 - abs(x - 1) * 10;
+    } else {
+        return 0;
+    }
+}
+
 struct BRDF {
 	float3 diffuse;
 	float3 specular;
@@ -75,6 +83,27 @@ BRDF GetBRDFWithTexture (inout Surface surface, float4 baseMap, bool applyAlphaT
 
 	brdf.diffuse = surface.color * OneMinusReflectivity(metallic);
 	
+	if (applyAlphaToDiffuse) {
+		brdf.diffuse *= surface.alpha;
+	
+	}
+	
+    // 나가는 빛의 양이 들어오는 빛의 양을 초과할 수 없으므로.
+	brdf.specular = lerp(MIN_REFLECTIVITY, surface.color, metallic);
+	float perceptualRoughness =
+		PerceptualSmoothnessToPerceptualRoughness(smoothness);
+	brdf.roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+	return brdf;
+}
+
+// 7주차 응용. 높이에 따른 반사율
+BRDF GetBRDFWithHeight (inout Surface surface, float3 positionWS, bool applyAlphaToDiffuse = false) {
+	BRDF brdf;
+
+	float metallic = surface.metallic;
+	float smoothness = customFunction(positionWS.y);
+
+	brdf.diffuse = surface.color * OneMinusReflectivity(metallic);
 	if (applyAlphaToDiffuse) {
 		brdf.diffuse *= surface.alpha;
 	

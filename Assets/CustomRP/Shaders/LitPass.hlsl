@@ -70,9 +70,12 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.smoothness =
 		UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
     
+    // 3장 Directional Light 의 반사 실험 - 높이에 따른 반사율 적용
     #if defined(_TEST_SHADER_EFFECT)
         float4 testMap = SAMPLE_TEXTURE2D(_TestMap, sampler_TestMap, input.baseUV);
         BRDF brdf = GetBRDFWithTestMap(surface, testMap);
+    #elif defined(_HEIGHT_BRDF)
+        BRDF brdf = GetBRDFWithHeight(surface, input.positionWS);
     #elif defined(_PREMULTIPLY_ALPHA)
         BRDF brdf = GetBRDF(surface, true);
     #else

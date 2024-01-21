@@ -21,7 +21,6 @@ public class CustomShaderGUI : ShaderGUI
         this.properties = properties;
 
         EditorGUILayout.Space();
-        this.TestShaderEffectPreset();
 
         EditorGUILayout.Space();
         this.showPresets = EditorGUILayout.Foldout(showPresets, "Presets", true);
@@ -35,25 +34,6 @@ public class CustomShaderGUI : ShaderGUI
                 this.TransparentPreset();
             }
         }
-    }
-
-    private void TestShaderEffectPreset()
-    {
-        if (GetProperty("_TestShaderEffect"))
-        {
-            if (PresetButton("Test Shader Effect 끄기"))
-            {
-                TestShaderEffect = false;
-            }
-        }
-        else
-        {
-            if (PresetButton("Test Shader Effect 켜기"))
-            {
-                TestShaderEffect = true;
-            }
-        }
-
     }
 
     private void OpaquePreset()
