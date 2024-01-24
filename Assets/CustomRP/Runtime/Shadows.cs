@@ -1,21 +1,32 @@
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace CustomRP.Runtime
 {
     public class Shadows
     {
-        const string bufferName = "Shadows";
+        private const string BufferName = "Shadows";
+        private const int MaxShadowedDirectionalLightCount = 1;
 
-        CommandBuffer buffer = new CommandBuffer
+        private readonly CommandBuffer buffer = new CommandBuffer
         {
-            name = bufferName
+            name = BufferName
         };
 
-        ScriptableRenderContext context;
+        private ScriptableRenderContext context;
 
-        CullingResults cullingResults;
+        private CullingResults cullingResults;
 
-        ShadowSettings settings;
+        private ShadowSettings settings;
+        
+        private int shadowedDirectionalLightCount;
+
+        private struct ShadowedDirectionalLight {
+            public int visibleLightIndex;
+        }
+
+        private ShadowedDirectionalLight[] shadowedDirectionalLights =
+            new ShadowedDirectionalLight[MaxShadowedDirectionalLightCount];
 
         public void Setup(
             ScriptableRenderContext context, CullingResults cullingResults,
@@ -24,12 +35,27 @@ namespace CustomRP.Runtime
             this.context = context;
             this.cullingResults = cullingResults;
             this.settings = settings;
+            this.shadowedDirectionalLightCount = 0;
         }
 
-        void ExecuteBuffer()
+        private void ExecuteBuffer()
         {
             context.ExecuteCommandBuffer(buffer);
             buffer.Clear();
+        }
+
+        public void ReserveDirectionalShadows(Light light, int visibleLightIndex)
+        {
+            if (
+                this.shadowedDirectionalLightCount < MaxShadowedDirectionalLightCount &&
+                light.shadows != LightShadows.None && light.shadowStrength > 0f && 
+                this.cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
+            {
+                shadowedDirectionalLights[shadowedDirectionalLightCount++] = new ShadowedDirectionalLight
+                {
+                    visibleLightIndex = visibleLightIndex
+                };
+            }
         }
     }
 }
