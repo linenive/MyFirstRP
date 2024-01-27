@@ -5,7 +5,12 @@ namespace CustomRP.Runtime
 {
     public class Shadows
     {
-        private static readonly int DirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+        private static readonly int 
+            DirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
+            DirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+        
+        private static readonly Matrix4x4[]
+            DirShadowMatrices = new Matrix4x4[MaxShadowedDirectionalLightCount * 4];
         
         private const string BufferName = "Shadows";
         private const int MaxShadowedDirectionalLightCount = 4;
@@ -44,6 +49,34 @@ namespace CustomRP.Runtime
         {
             context.ExecuteCommandBuffer(buffer);
             buffer.Clear();
+        }
+        
+        /// <summary>
+        /// WS -> Shadow Tile Space
+        /// </summary>
+        private static Matrix4x4 ConvertToAtlasMatrix (Matrix4x4 lightMatrix, Vector2 tileOffset, int split) {
+            // 반전된 Z 버퍼가 사용될 경우 Z 차원을 무효화한다.
+            if (SystemInfo.usesReversedZBuffer) {
+                lightMatrix.m20 = -lightMatrix.m20;
+                lightMatrix.m21 = -lightMatrix.m21;
+                lightMatrix.m22 = -lightMatrix.m22;
+                lightMatrix.m23 = -lightMatrix.m23;
+            }
+
+            var scale = 1.0f / split;
+            lightMatrix.m00 = (0.5f * (lightMatrix.m00 + lightMatrix.m30) + tileOffset.x * lightMatrix.m30) * scale;
+            lightMatrix.m01 = (0.5f * (lightMatrix.m01 + lightMatrix.m31) + tileOffset.x * lightMatrix.m31) * scale;
+            lightMatrix.m02 = (0.5f * (lightMatrix.m02 + lightMatrix.m32) + tileOffset.x * lightMatrix.m32) * scale;
+            lightMatrix.m03 = (0.5f * (lightMatrix.m03 + lightMatrix.m33) + tileOffset.x * lightMatrix.m33) * scale;
+            lightMatrix.m10 = (0.5f * (lightMatrix.m10 + lightMatrix.m30) + tileOffset.y * lightMatrix.m30) * scale;
+            lightMatrix.m11 = (0.5f * (lightMatrix.m11 + lightMatrix.m31) + tileOffset.y * lightMatrix.m31) * scale;
+            lightMatrix.m12 = (0.5f * (lightMatrix.m12 + lightMatrix.m32) + tileOffset.y * lightMatrix.m32) * scale;
+            lightMatrix.m13 = (0.5f * (lightMatrix.m13 + lightMatrix.m33) + tileOffset.y * lightMatrix.m33) * scale;
+            lightMatrix.m20 = 0.5f * (lightMatrix.m20 + lightMatrix.m30);
+            lightMatrix.m21 = 0.5f * (lightMatrix.m21 + lightMatrix.m31);
+            lightMatrix.m22 = 0.5f * (lightMatrix.m22 + lightMatrix.m32);
+            lightMatrix.m23 = 0.5f * (lightMatrix.m23 + lightMatrix.m33);
+            return lightMatrix;
         }
 
         public void ReserveDirectionalShadows(Light light, int visibleLightIndex)
@@ -102,6 +135,7 @@ namespace CustomRP.Runtime
                 RenderDirectionalShadows(i, split, tileSize);
             }
             
+            buffer.SetGlobalMatrixArray(DirShadowMatricesId, DirShadowMatrices);
             buffer.EndSample(BufferName);
             ExecuteBuffer();
         }
@@ -109,11 +143,12 @@ namespace CustomRP.Runtime
         /// <summary>
         /// 타일의 인덱스를 기반으로 뷰포트를 설정한다.
         /// </summary>
-        private void SetTileViewport (int index, int split, float tileSize) {
+        private Vector2 SetTileViewport (int index, int split, float tileSize) {
             var offset = new Vector2(index % split, index / split);
-            buffer.SetViewport(new Rect(
+            this.buffer.SetViewport(new Rect(
                 offset.x * tileSize, offset.y * tileSize, tileSize, tileSize
             ));
+            return offset;
         }
         
         private void RenderDirectionalShadows(int index, int split, int tileSize)
@@ -135,7 +170,11 @@ namespace CustomRP.Runtime
                 out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                 out ShadowSplitData splitData);
             shadowSettings.splitData = splitData;
-            this.SetTileViewport(index, split, tileSize);
+            
+            DirShadowMatrices[index] = ConvertToAtlasMatrix(
+                projectionMatrix * viewMatrix,
+                this.SetTileViewport(index, split, tileSize),
+                split);
             this.buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
             ExecuteBuffer();
             context.DrawShadows(ref shadowSettings);
