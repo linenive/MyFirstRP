@@ -34,13 +34,16 @@ namespace CustomRP.Runtime
             {
                 return;
             }
-
+            
+            this.buffer.BeginSample(SampleName);
+            this.ExecuteBuffer();
+            this.lighting.Setup(context, cullingResults, shadowSettings);
+            this.buffer.EndSample(SampleName);
             this.Setup();
-            lighting.Setup(context, cullingResults, shadowSettings);
             this.DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
             this.DrawUnsupportedShaders();
             this.DrawGizmos();
-            lighting.Cleanup();
+            this.lighting.Cleanup();
             this.Submit();
         }
 
