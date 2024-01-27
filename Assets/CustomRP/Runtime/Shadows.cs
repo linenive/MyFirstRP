@@ -90,7 +90,41 @@ namespace CustomRP.Runtime
                 // 텍스처에 그림자 데이터를 포함시킨다는 목적이므로 저장한다. 
                 RenderBufferStoreAction.Store);
             buffer.ClearRenderTarget(true, false, Color.clear);
+            buffer.BeginSample(BufferName);
             ExecuteBuffer();
+            
+            for (int i = 0; i < shadowedDirectionalLightCount; i++)
+            {
+                RenderDirectionalShadows(i, atlasSize);
+            }
+            
+            buffer.EndSample(BufferName);
+            ExecuteBuffer();
+        }
+        
+        private void RenderDirectionalShadows(int index, int tileSize)
+        {
+            var light = shadowedDirectionalLights[index];
+            var shadowSettings = new ShadowDrawingSettings(
+                this.cullingResults, light.visibleLightIndex,
+                BatchCullingProjectionType.Orthographic);
+            // 방향성 조명은 무한히 멀리 있다고 가정하므로, 
+            // 거리를 사용하는 대신, 조명의 방향과 일치하는 뷰 / 투영 매트릭스를 파악하여
+            // Clip Space 와 겹치도록 한다.
+            this.cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
+                light.visibleLightIndex,
+                // 그림자 캐스케이드를 제어. (거리에 따라 절두체를 나누어 서로 다른 해상도로 보여준다)
+                splitIndex: 0, splitCount: 1, splitRatio: Vector3.zero,
+                tileSize, 
+                // 지금 단계에서는 무시한다.
+                shadowNearPlaneOffset: .0f,
+                out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
+                out ShadowSplitData splitData);
+            shadowSettings.splitData = splitData;
+            this.buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+            ExecuteBuffer();
+            context.DrawShadows(ref shadowSettings);
+            
         }
         
         public void Cleanup () {
