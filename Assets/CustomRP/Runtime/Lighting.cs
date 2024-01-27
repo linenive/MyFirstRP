@@ -30,8 +30,9 @@ namespace CustomRP.Runtime
         {
             this.cullingResults = cullingResults;
             this.buffer.BeginSample(bufferName);
-            shadows.Setup(context, cullingResults, shadowSettings);
+            this.shadows.Setup(context, cullingResults, shadowSettings);
             this.SetupLights();
+            this.shadows.Render();
             this.buffer.EndSample(bufferName);
             context.ExecuteCommandBuffer(buffer);
             this.buffer.Clear();
@@ -69,6 +70,10 @@ namespace CustomRP.Runtime
             dirLightColors[index] = visibleLight.finalColor;
             dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
             shadows.ReserveDirectionalShadows(visibleLight.light, index);
+        }
+        
+        public void Cleanup () {
+            shadows.Cleanup();
         }
     }
 }

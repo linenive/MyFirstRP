@@ -40,6 +40,7 @@ namespace CustomRP.Runtime
             this.DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
             this.DrawUnsupportedShaders();
             this.DrawGizmos();
+            lighting.Cleanup();
             this.Submit();
         }
 
