@@ -8,7 +8,7 @@ namespace CustomRP.Runtime
         private static readonly int DirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
         
         private const string BufferName = "Shadows";
-        private const int MaxShadowedDirectionalLightCount = 1;
+        private const int MaxShadowedDirectionalLightCount = 4;
 
         private readonly CommandBuffer buffer = new CommandBuffer
         {
@@ -92,17 +92,31 @@ namespace CustomRP.Runtime
             buffer.ClearRenderTarget(true, false, Color.clear);
             buffer.BeginSample(BufferName);
             ExecuteBuffer();
+           
+            // 그림자가 드리워진 조명이 두 개 이상이면 타일 크기를 절반으로 줄여 아틀라스를 네 타일로 분할해야 한다.
+            int split = shadowedDirectionalLightCount <= 1 ? 1 : 2;
+            int tileSize = atlasSize / split;
             
             for (int i = 0; i < shadowedDirectionalLightCount; i++)
             {
-                RenderDirectionalShadows(i, atlasSize);
+                RenderDirectionalShadows(i, split, tileSize);
             }
             
             buffer.EndSample(BufferName);
             ExecuteBuffer();
         }
         
-        private void RenderDirectionalShadows(int index, int tileSize)
+        /// <summary>
+        /// 타일의 인덱스를 기반으로 뷰포트를 설정한다.
+        /// </summary>
+        private void SetTileViewport (int index, int split, float tileSize) {
+            var offset = new Vector2(index % split, index / split);
+            buffer.SetViewport(new Rect(
+                offset.x * tileSize, offset.y * tileSize, tileSize, tileSize
+            ));
+        }
+        
+        private void RenderDirectionalShadows(int index, int split, int tileSize)
         {
             var light = shadowedDirectionalLights[index];
             var shadowSettings = new ShadowDrawingSettings(
@@ -121,6 +135,7 @@ namespace CustomRP.Runtime
                 out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                 out ShadowSplitData splitData);
             shadowSettings.splitData = splitData;
+            this.SetTileViewport(index, split, tileSize);
             this.buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
             ExecuteBuffer();
             context.DrawShadows(ref shadowSettings);
