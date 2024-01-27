@@ -8,12 +8,16 @@ namespace CustomRP.Runtime
     {
         const int maxDirLightCount = 4;
 
-        static readonly int dirLightCountId = Shader.PropertyToID("_DirectionalLightCount");
-        static readonly int dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors");
-        static readonly int dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections");
+        static readonly int 
+            dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
+            dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors"),
+            dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections"),
+            dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
 
-        static Vector4[] dirLightColors = new Vector4[maxDirLightCount];
-        static Vector4[] dirLightDirections = new Vector4[maxDirLightCount];
+        static Vector4[] 
+            dirLightColors = new Vector4[maxDirLightCount],
+            dirLightDirections = new Vector4[maxDirLightCount],
+            dirLightShadowData = new Vector4[maxDirLightCount];
 
         const string bufferName = "Lighting";
 
@@ -63,13 +67,14 @@ namespace CustomRP.Runtime
             this.buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
             this.buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
             this.buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+            this.buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
         }
 
         private void SetupDirectionalLight(int index, ref VisibleLight visibleLight)
         {
             dirLightColors[index] = visibleLight.finalColor;
             dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
-            shadows.ReserveDirectionalShadows(visibleLight.light, index);
+            dirLightShadowData[index] = shadows.ReserveDirectionalShadows(visibleLight.light, index);
         }
         
         public void Cleanup () {

@@ -79,18 +79,21 @@ namespace CustomRP.Runtime
             return lightMatrix;
         }
 
-        public void ReserveDirectionalShadows(Light light, int visibleLightIndex)
+        public Vector2 ReserveDirectionalShadows(Light light, int visibleLightIndex)
         {
             if (
                 this.shadowedDirectionalLightCount < MaxShadowedDirectionalLightCount &&
                 light.shadows != LightShadows.None && light.shadowStrength > 0f && 
                 this.cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
             {
-                shadowedDirectionalLights[shadowedDirectionalLightCount++] = new ShadowedDirectionalLight
+                shadowedDirectionalLights[shadowedDirectionalLightCount] = new ShadowedDirectionalLight
                 {
                     visibleLightIndex = visibleLightIndex
                 };
+                return new Vector2(
+                    light.shadowStrength, shadowedDirectionalLightCount++);
             }
+            return Vector2.zero;
         }
 
         public void Render()
