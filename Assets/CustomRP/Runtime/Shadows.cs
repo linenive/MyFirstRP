@@ -5,15 +5,15 @@ namespace CustomRP.Runtime
 {
     public class Shadows
     {
+        private const string BufferName = "Shadows";
+        private const int MaxShadowedDirectionalLightCount = 4, maxCascades = 4;
+        
         private static readonly int 
             DirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
             DirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
         
         private static readonly Matrix4x4[]
-            DirShadowMatrices = new Matrix4x4[MaxShadowedDirectionalLightCount * 4];
-        
-        private const string BufferName = "Shadows";
-        private const int MaxShadowedDirectionalLightCount = 4;
+            DirShadowMatrices = new Matrix4x4[MaxShadowedDirectionalLightCount * 4 * maxCascades];
 
         private readonly CommandBuffer buffer = new CommandBuffer
         {
@@ -91,7 +91,8 @@ namespace CustomRP.Runtime
                     visibleLightIndex = visibleLightIndex
                 };
                 return new Vector2(
-                    light.shadowStrength, shadowedDirectionalLightCount++);
+                    light.shadowStrength, 
+                    settings.directional.cascadeCount * shadowedDirectionalLightCount++);
             }
             return Vector2.zero;
         }
@@ -130,7 +131,8 @@ namespace CustomRP.Runtime
             ExecuteBuffer();
            
             // 그림자가 드리워진 조명이 두 개 이상이면 타일 크기를 절반으로 줄여 아틀라스를 네 타일로 분할해야 한다.
-            int split = shadowedDirectionalLightCount <= 1 ? 1 : 2;
+            int tiles = shadowedDirectionalLightCount * settings.directional.cascadeCount;
+            int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
             int tileSize = atlasSize / split;
             
             for (int i = 0; i < shadowedDirectionalLightCount; i++)
@@ -160,28 +162,35 @@ namespace CustomRP.Runtime
             var shadowSettings = new ShadowDrawingSettings(
                 this.cullingResults, light.visibleLightIndex,
                 BatchCullingProjectionType.Orthographic);
-            // 방향성 조명은 무한히 멀리 있다고 가정하므로, 
-            // 거리를 사용하는 대신, 조명의 방향과 일치하는 뷰 / 투영 매트릭스를 파악하여
-            // Clip Space 와 겹치도록 한다.
-            this.cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
-                light.visibleLightIndex,
-                // 그림자 캐스케이드를 제어. (거리에 따라 절두체를 나누어 서로 다른 해상도로 보여준다)
-                splitIndex: 0, splitCount: 1, splitRatio: Vector3.zero,
-                tileSize, 
-                // 지금 단계에서는 무시한다.
-                shadowNearPlaneOffset: .0f,
-                out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
-                out ShadowSplitData splitData);
-            shadowSettings.splitData = splitData;
+            var cascadeCount = settings.directional.cascadeCount;
+            var tileOffset = index * cascadeCount;
+            var ratios = settings.directional.CascadeRatios;
+
+            for (int i = 0; i < cascadeCount; i++)
+            {
+                // 방향성 조명은 무한히 멀리 있다고 가정하므로, 
+                // 거리를 사용하는 대신, 조명의 방향과 일치하는 뷰 / 투영 매트릭스를 파악하여
+                // Clip Space 와 겹치도록 한다.
+                this.cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
+                    light.visibleLightIndex,
+                    // 그림자 캐스케이드를 제어. (거리에 따라 절두체를 나누어 서로 다른 해상도로 보여준다)
+                    splitIndex: i, splitCount: cascadeCount, splitRatio: ratios,
+                    tileSize, 
+                    // 지금 단계에서는 무시한다.
+                    shadowNearPlaneOffset: .0f,
+                    out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
+                    out ShadowSplitData splitData);
+                shadowSettings.splitData = splitData;
+                var tileIndex = tileOffset + i;
             
-            DirShadowMatrices[index] = ConvertToAtlasMatrix(
-                projectionMatrix * viewMatrix,
-                this.SetTileViewport(index, split, tileSize),
-                split);
-            this.buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
-            ExecuteBuffer();
-            context.DrawShadows(ref shadowSettings);
-            
+                DirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(
+                    projectionMatrix * viewMatrix,
+                    this.SetTileViewport(tileIndex, split, tileSize),
+                    split);
+                this.buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+                ExecuteBuffer();
+                context.DrawShadows(ref shadowSettings);
+            }
         }
         
         public void Cleanup () {
