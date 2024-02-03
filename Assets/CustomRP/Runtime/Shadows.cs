@@ -10,7 +10,11 @@ namespace CustomRP.Runtime
         
         private static readonly int 
             DirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
-            DirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+            DirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
+            CascadeCountId = Shader.PropertyToID("_CascadeCount"),
+            CascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
+        
+        static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
         
         private static readonly Matrix4x4[]
             DirShadowMatrices = new Matrix4x4[MaxShadowedDirectionalLightCount * 4 * maxCascades];
@@ -140,6 +144,10 @@ namespace CustomRP.Runtime
                 RenderDirectionalShadows(i, split, tileSize);
             }
             
+            buffer.SetGlobalInt(CascadeCountId, settings.directional.cascadeCount);
+            buffer.SetGlobalVectorArray(
+                CascadeCullingSpheresId, cascadeCullingSpheres
+            );
             buffer.SetGlobalMatrixArray(DirShadowMatricesId, DirShadowMatrices);
             buffer.EndSample(BufferName);
             ExecuteBuffer();
@@ -181,6 +189,12 @@ namespace CustomRP.Runtime
                     out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                     out ShadowSplitData splitData);
                 shadowSettings.splitData = splitData;
+                // 모든 조명의 캐스케이드가 동일하므로 첫 번째 조명에 대해서만 수행한다.
+                if (index == 0) {
+                    var cullingSphere = splitData.cullingSphere;
+                    cullingSphere.w *= cullingSphere.w;
+                    cascadeCullingSpheres[i] = cullingSphere;
+                }
                 var tileIndex = tileOffset + i;
             
                 DirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(
