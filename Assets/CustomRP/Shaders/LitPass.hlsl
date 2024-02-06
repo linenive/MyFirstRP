@@ -72,6 +72,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
 	surface.smoothness =
 		UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
+    surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
     
     // 3장 Directional Light 의 반사 실험 - 높이에 따른 반사율 적용
     #if defined(_TEST_SHADER_EFFECT)

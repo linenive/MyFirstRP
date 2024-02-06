@@ -26,6 +26,11 @@ namespace CustomRP.Runtime
         static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades],
             cascadeData = new Vector4[maxCascades];
         
+        static string[] cascadeBlendKeywords = {
+            "_CASCADE_BLEND_SOFT",
+            "_CASCADE_BLEND_DITHER"
+        };
+        
         private static readonly Matrix4x4[]
             DirShadowMatrices = new Matrix4x4[MaxShadowedDirectionalLightCount * 4 * maxCascades];
 
@@ -171,7 +176,8 @@ namespace CustomRP.Runtime
                 new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade,
                     1f / (1f - f * f))
             );
-            this.SetKeywords();
+            this.SetKeywords(directionalFilterKeywords, (int)settings.directional.filter - 1);
+            this.SetKeywords(cascadeBlendKeywords, (int)settings.directional.cascadeBlend - 1);
             this.buffer.SetGlobalVector(
                 ShadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize)
             );
@@ -179,14 +185,13 @@ namespace CustomRP.Runtime
             this.ExecuteBuffer();
         }
         
-        private void SetKeywords () {
-            var enabledIndex = (int)settings.directional.filter - 1;
-            for (var i = 0; i < directionalFilterKeywords.Length; i++) {
+        private void SetKeywords (string[] keywords, int enabledIndex) {
+            for (var i = 0; i < keywords.Length; i++) {
                 if (i == enabledIndex) {
-                    buffer.EnableShaderKeyword(directionalFilterKeywords[i]);
+                    buffer.EnableShaderKeyword(keywords[i]);
                 }
                 else {
-                    buffer.DisableShaderKeyword(directionalFilterKeywords[i]);
+                    buffer.DisableShaderKeyword(keywords[i]);
                 }
             }
         }
