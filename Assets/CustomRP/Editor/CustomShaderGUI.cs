@@ -28,6 +28,7 @@ public class CustomShaderGUI : ShaderGUI
         MaterialEditor materialEditor, MaterialProperty[] properties
     )
     {
+        EditorGUI.BeginChangeCheck();
         base.OnGUI(materialEditor, properties);
         this.editor = materialEditor;
         this.materials = materialEditor.targets;
@@ -46,6 +47,9 @@ public class CustomShaderGUI : ShaderGUI
             {
                 this.TransparentPreset();
             }
+        }
+        if (EditorGUI.EndChangeCheck()) {
+            SetShadowCasterPass();
         }
     }
 
@@ -203,5 +207,16 @@ public class CustomShaderGUI : ShaderGUI
     {
         var property = FindProperty(name, properties, propertyIsMandatory: false);
         return property != null && property.floatValue == 1f;
+    }
+    
+    private void SetShadowCasterPass () {
+        var shadows = FindProperty("_Shadows", properties, false);
+        if (shadows == null || shadows.hasMixedValue) {
+            return;
+        }
+        var enabled = shadows.floatValue < (float)ShadowMode.Off;
+        foreach (Material m in materials) {
+            m.SetShaderPassEnabled("ShadowCaster", enabled);
+        }
     }
 }
