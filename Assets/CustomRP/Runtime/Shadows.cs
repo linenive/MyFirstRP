@@ -37,6 +37,7 @@ namespace CustomRP.Runtime
 
         private struct ShadowedDirectionalLight {
             public int visibleLightIndex;
+            public float slopeScaleBias;
         }
 
         private ShadowedDirectionalLight[] shadowedDirectionalLights =
@@ -86,7 +87,7 @@ namespace CustomRP.Runtime
             return lightMatrix;
         }
 
-        public Vector2 ReserveDirectionalShadows(Light light, int visibleLightIndex)
+        public Vector3 ReserveDirectionalShadows(Light light, int visibleLightIndex)
         {
             if (
                 this.shadowedDirectionalLightCount < MaxShadowedDirectionalLightCount &&
@@ -95,13 +96,15 @@ namespace CustomRP.Runtime
             {
                 shadowedDirectionalLights[shadowedDirectionalLightCount] = new ShadowedDirectionalLight
                 {
-                    visibleLightIndex = visibleLightIndex
+                    visibleLightIndex = visibleLightIndex,
+                    slopeScaleBias = light.shadowBias
                 };
-                return new Vector2(
+                return new Vector3(
                     light.shadowStrength, 
-                    settings.directional.cascadeCount * shadowedDirectionalLightCount++);
+                    settings.directional.cascadeCount * shadowedDirectionalLightCount++,
+                    light.shadowNormalBias);
             }
-            return Vector2.zero;
+            return Vector3.zero;
         }
 
         public void Render()
@@ -207,8 +210,10 @@ namespace CustomRP.Runtime
                     this.SetTileViewport(tileIndex, split, tileSize),
                     split);
                 this.buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+                this.buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
                 ExecuteBuffer();
                 context.DrawShadows(ref shadowSettings);
+                this.buffer.SetGlobalDepthBias(0f, 0f);
             }
         }
         
