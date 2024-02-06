@@ -7,12 +7,11 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SampleLitMaterial
+  m_Name: SampleLitMaterialNoReceiveShadows
   m_Shader: {fileID: 4800000, guid: a0d3578950701124498d3e211690f1c4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _RECEIVE_SHADOWS
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - _SHADOWS_ON
   m_LightmapFlags: 4
@@ -85,7 +84,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PremulAlpha: 0
-    - _ReceiveShadows: 1
+    - _ReceiveShadows: 0
     - _Shadows: 0
     - _Smoothness: 0.9
     - _SmoothnessTextureChannel: 0

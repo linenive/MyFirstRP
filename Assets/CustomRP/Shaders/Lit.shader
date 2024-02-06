@@ -16,6 +16,7 @@ Shader "CustomRP/Lit"
         [Toggle(_TEST_SHADER_EFFECT)] _TestShaderEffect ("Test Shader Effect", Float) = 0
         _TestMap("Test Map", 2D) = "white" {}
         [Toggle(_HEIGHT_BRDF)] _HeightBRDF ("HeightBRDF", Float) = 0
+    	[Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows ("Receive Shadows", Float) = 1
     }
     SubShader
     {
@@ -36,6 +37,7 @@ Shader "CustomRP/Lit"
             #pragma shader_feature _TEST_SHADER_EFFECT
             #pragma shader_feature _HEIGHT_BRDF
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+            #pragma shader_feature _RECEIVE_SHADOWS
             #pragma multi_compile_instancing
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
