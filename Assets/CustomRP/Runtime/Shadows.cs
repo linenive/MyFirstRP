@@ -13,8 +13,15 @@ namespace CustomRP.Runtime
             DirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
             CascadeCountId = Shader.PropertyToID("_CascadeCount"),
             CascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
-            cascadeDataId = Shader.PropertyToID("_CascadeData"),
-            shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+            CascadeDataId = Shader.PropertyToID("_CascadeData"),
+            ShadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
+            ShadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+        
+        static string[] directionalFilterKeywords = {
+            "_DIRECTIONAL_PCF3",
+            "_DIRECTIONAL_PCF5",
+            "_DIRECTIONAL_PCF7",
+        };
         
         static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades],
             cascadeData = new Vector4[maxCascades];
@@ -143,29 +150,45 @@ namespace CustomRP.Runtime
             ExecuteBuffer();
            
             // 그림자가 드리워진 조명이 두 개 이상이면 타일 크기를 절반으로 줄여 아틀라스를 네 타일로 분할해야 한다.
-            int tiles = shadowedDirectionalLightCount * settings.directional.cascadeCount;
-            int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
-            int tileSize = atlasSize / split;
+            var tiles = shadowedDirectionalLightCount * settings.directional.cascadeCount;
+            var split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
+            var tileSize = atlasSize / split;
             
-            for (int i = 0; i < shadowedDirectionalLightCount; i++)
+            for (var i = 0; i < shadowedDirectionalLightCount; i++)
             {
                 RenderDirectionalShadows(i, split, tileSize);
             }
             
-            buffer.SetGlobalInt(CascadeCountId, settings.directional.cascadeCount);
-            buffer.SetGlobalVectorArray(
+            this.buffer.SetGlobalInt(CascadeCountId, settings.directional.cascadeCount);
+            this.buffer.SetGlobalVectorArray(
                 CascadeCullingSpheresId, cascadeCullingSpheres
             );
-            buffer.SetGlobalVectorArray(cascadeDataId, cascadeData);
-            buffer.SetGlobalMatrixArray(DirShadowMatricesId, DirShadowMatrices);
+            this.buffer.SetGlobalVectorArray(CascadeDataId, cascadeData);
+            this.buffer.SetGlobalMatrixArray(DirShadowMatricesId, DirShadowMatrices);
             var f = 1f - settings.directional.cascadeFade;
-            buffer.SetGlobalVector(
-                shadowDistanceFadeId,
+            this.buffer.SetGlobalVector(
+                ShadowDistanceFadeId,
                 new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade,
                     1f / (1f - f * f))
             );
-            buffer.EndSample(BufferName);
-            ExecuteBuffer();
+            this.SetKeywords();
+            this.buffer.SetGlobalVector(
+                ShadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize)
+            );
+            this.buffer.EndSample(BufferName);
+            this.ExecuteBuffer();
+        }
+        
+        private void SetKeywords () {
+            var enabledIndex = (int)settings.directional.filter - 1;
+            for (var i = 0; i < directionalFilterKeywords.Length; i++) {
+                if (i == enabledIndex) {
+                    buffer.EnableShaderKeyword(directionalFilterKeywords[i]);
+                }
+                else {
+                    buffer.DisableShaderKeyword(directionalFilterKeywords[i]);
+                }
+            }
         }
         
         /// <summary>
@@ -219,13 +242,14 @@ namespace CustomRP.Runtime
             }
         }
         
-        void SetCascadeData (int index, Vector4 cullingSphere, float tileSize) {
+        private void SetCascadeData (int index, Vector4 cullingSphere, float tileSize) {
             var texelSize = 2f * cullingSphere.w / tileSize;
+            float filterSize = texelSize * ((float)settings.directional.filter + 1f);
             cullingSphere.w *= cullingSphere.w;
             cascadeCullingSpheres[index] = cullingSphere;
             cascadeData[index] = new Vector4(
                 1f / cullingSphere.w,
-                texelSize
+                filterSize * 1.4142136f
             );
         }
         
