@@ -1,8 +1,6 @@
 #ifndef CUSTOM_SHADOWS_INCLUDED
 #define CUSTOM_SHADOWS_INCLUDED
 
-#include "../ShaderLibrary/Common.hlsl"
-
 #define MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT 4
 #define MAX_CASCADE_COUNT 4
 
@@ -14,6 +12,7 @@ CBUFFER_START(_CustomShadows)
     int _CascadeCount;
     float4 _CascadeCullingSpheres[MAX_CASCADE_COUNT];
     float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT];
+    float4 _ShadowDistanceFade;
 CBUFFER_END
 
 struct DirectionalShadowData {
@@ -23,10 +22,18 @@ struct DirectionalShadowData {
 
 struct ShadowData {
     int cascadeIndex;
+    float strength;
 };
+
+float FadedShadowStrength (float distance, float scale, float fade) {
+    return saturate((1.0 - distance * scale) * fade);
+}
 
 ShadowData GetShadowData (Surface surfaceWS) {
     ShadowData data;
+    data.strength = FadedShadowStrength(
+        surfaceWS.depth, _ShadowDistanceFade.x, _ShadowDistanceFade.y
+    );
     int i;
     for (i = 0; i < _CascadeCount; i++) {
         float4 sphere = _CascadeCullingSpheres[i];
@@ -35,6 +42,12 @@ ShadowData GetShadowData (Surface surfaceWS) {
             break;
         }
     }
+
+    // 마지막 캐스케이드를 넘어가면 유효한 그림자 데이터가 없을 테니 그림자를 샘플링하지 않는다.
+    if (i == _CascadeCount) {
+        data.strength = 0.0;
+    }
+
     data.cascadeIndex = i;
     return data;
 }

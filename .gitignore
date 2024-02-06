@@ -77,3 +77,8 @@ Packages/packages-lock.json
 
 /[Aa]ssets/PrivateAssets/
 /.idea/
+Assets/CustomRP.asset
+ProjectSettings/ProjectVersion.txt
+Assets/Scenes/SampleScene.unity
+Assets/CustomRP.asset.meta
+Assets/Scenes/SampleScene.unity.meta
