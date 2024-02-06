@@ -217,6 +217,9 @@ namespace CustomRP.Runtime
             var tileOffset = index * cascadeCount;
             var ratios = settings.directional.CascadeRatios;
 
+            float cullingFactor =
+                Mathf.Max(0f, 0.8f - settings.directional.cascadeFade);
+            
             for (int i = 0; i < cascadeCount; i++)
             {
                 // 방향성 조명은 무한히 멀리 있다고 가정하므로, 
@@ -231,6 +234,7 @@ namespace CustomRP.Runtime
                     shadowNearPlaneOffset: light.nearPlaneOffset,
                     out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                     out ShadowSplitData splitData);
+                splitData.shadowCascadeBlendCullingFactor = cullingFactor;
                 shadowSettings.splitData = splitData;
                 SetCascadeData(i, splitData.cullingSphere, tileSize);
                 var tileIndex = tileOffset + i;
