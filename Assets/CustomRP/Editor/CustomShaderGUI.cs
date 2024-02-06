@@ -5,6 +5,19 @@ using UnityEngine.Rendering;
 
 public class CustomShaderGUI : ShaderGUI
 {
+    private enum ShadowMode {
+        On, Clip, Dither, Off
+    }
+
+    private ShadowMode Shadows {
+        set {
+            if (SetProperty("_Shadows", (float)value)) {
+                SetKeyword("_SHADOWS_CLIP", value == ShadowMode.Clip);
+                SetKeyword("_SHADOWS_DITHER", value == ShadowMode.Dither);
+            }
+        }
+    }
+    
     private MaterialEditor editor;
     private Object[] materials;
     private MaterialProperty[] properties;
@@ -46,6 +59,7 @@ public class CustomShaderGUI : ShaderGUI
             DstBlend = BlendMode.Zero;
             ZWrite = true;
             RenderQueue = RenderQueue.Geometry;
+            Shadows = ShadowMode.On;
         }
     }
 
@@ -59,6 +73,7 @@ public class CustomShaderGUI : ShaderGUI
             DstBlend = BlendMode.Zero;
             ZWrite = true;
             RenderQueue = RenderQueue.AlphaTest;
+            Shadows = ShadowMode.Clip;
         }
     }
 
@@ -72,6 +87,7 @@ public class CustomShaderGUI : ShaderGUI
             DstBlend = BlendMode.OneMinusSrcAlpha;
             ZWrite = false;
             RenderQueue = RenderQueue.Transparent;
+            Shadows = ShadowMode.Dither;
         }
     }
 
@@ -85,6 +101,7 @@ public class CustomShaderGUI : ShaderGUI
             DstBlend = BlendMode.OneMinusSrcAlpha;
             ZWrite = false;
             RenderQueue = RenderQueue.Transparent;
+            Shadows = ShadowMode.Dither;
         }
     }
 
