@@ -38,6 +38,7 @@ namespace CustomRP.Runtime
         private struct ShadowedDirectionalLight {
             public int visibleLightIndex;
             public float slopeScaleBias;
+            public float nearPlaneOffset;
         }
 
         private ShadowedDirectionalLight[] shadowedDirectionalLights =
@@ -97,7 +98,8 @@ namespace CustomRP.Runtime
                 shadowedDirectionalLights[shadowedDirectionalLightCount] = new ShadowedDirectionalLight
                 {
                     visibleLightIndex = visibleLightIndex,
-                    slopeScaleBias = light.shadowBias
+                    slopeScaleBias = light.shadowBias,
+                    nearPlaneOffset = light.shadowNearPlane
                 };
                 return new Vector3(
                     light.shadowStrength, 
@@ -198,7 +200,7 @@ namespace CustomRP.Runtime
                     splitIndex: i, splitCount: cascadeCount, splitRatio: ratios,
                     tileSize, 
                     // 지금 단계에서는 무시한다.
-                    shadowNearPlaneOffset: .0f,
+                    shadowNearPlaneOffset: light.nearPlaneOffset,
                     out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                     out ShadowSplitData splitData);
                 shadowSettings.splitData = splitData;
