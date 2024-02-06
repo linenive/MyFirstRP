@@ -13,9 +13,11 @@ namespace CustomRP.Runtime
             DirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
             CascadeCountId = Shader.PropertyToID("_CascadeCount"),
             CascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
+            cascadeDataId = Shader.PropertyToID("_CascadeData"),
             shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
         
-        static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
+        static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades],
+            cascadeData = new Vector4[maxCascades];
         
         private static readonly Matrix4x4[]
             DirShadowMatrices = new Matrix4x4[MaxShadowedDirectionalLightCount * 4 * maxCascades];
@@ -149,6 +151,7 @@ namespace CustomRP.Runtime
             buffer.SetGlobalVectorArray(
                 CascadeCullingSpheresId, cascadeCullingSpheres
             );
+            buffer.SetGlobalVectorArray(cascadeDataId, cascadeData);
             buffer.SetGlobalMatrixArray(DirShadowMatricesId, DirShadowMatrices);
             var f = 1f - settings.directional.cascadeFade;
             buffer.SetGlobalVector(
@@ -196,12 +199,7 @@ namespace CustomRP.Runtime
                     out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                     out ShadowSplitData splitData);
                 shadowSettings.splitData = splitData;
-                // 모든 조명의 캐스케이드가 동일하므로 첫 번째 조명에 대해서만 수행한다.
-                if (index == 0) {
-                    var cullingSphere = splitData.cullingSphere;
-                    cullingSphere.w *= cullingSphere.w;
-                    cascadeCullingSpheres[i] = cullingSphere;
-                }
+                SetCascadeData(i, splitData.cullingSphere, tileSize);
                 var tileIndex = tileOffset + i;
             
                 DirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(
@@ -212,6 +210,16 @@ namespace CustomRP.Runtime
                 ExecuteBuffer();
                 context.DrawShadows(ref shadowSettings);
             }
+        }
+        
+        void SetCascadeData (int index, Vector4 cullingSphere, float tileSize) {
+            var texelSize = 2f * cullingSphere.w / tileSize;
+            cullingSphere.w *= cullingSphere.w;
+            cascadeCullingSpheres[index] = cullingSphere;
+            cascadeData[index] = new Vector4(
+                1f / cullingSphere.w,
+                texelSize
+            );
         }
         
         public void Cleanup () {
