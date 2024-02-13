@@ -11,6 +11,8 @@
 #elif defined(_DIRECTIONAL_PCF7)
     #define DIRECTIONAL_FILTER_SAMPLES 16
     #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
+#elif defined(_DIRECTIONAL_POISSON)
+    #define POISSON_DISK_SIZE 4
 #endif
 
 #define MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT 4
@@ -43,6 +45,23 @@ struct ShadowData {
 
 float FadedShadowStrength (float distance, float scale, float fade) {
     return saturate((1.0 - distance * scale) * fade);
+}
+
+void SampleShadow_PoissonDisk(real4 shadowMapTexture_TexelSize, real2 coord, out real2 fetchesUV[4])
+{
+    real2 tentCenterInTexelSpace = coord.xy * shadowMapTexture_TexelSize.zw;
+
+    const float2 poisson_disk[4] = {
+        float2( -0.94201624, -0.39906216 ),
+        float2( 0.94558609, -0.76890725 ),
+        float2( -0.094184101, -0.92938870 ),
+        float2( 0.34495938, 0.29387760 )
+    };
+    
+    fetchesUV[0] = coord + poisson_disk[0];
+    fetchesUV[1] = coord + poisson_disk[1];
+    fetchesUV[2] = coord + poisson_disk[2];
+    fetchesUV[3] = coord + poisson_disk[3];
 }
 
 ShadowData GetShadowData (Surface surfaceWS) {
@@ -104,6 +123,17 @@ float FilterDirectionalShadow (float3 positionSTS) {
             );
         }
         return shadow;
+    #elif defined(POISSON_DISK_SIZE)
+        float2 positions[POISSON_DISK_SIZE];
+        float4 size = _ShadowAtlasSize.yyxx;
+        SampleShadow_PoissonDisk(size, positionSTS.xy, positions);
+        float shadow = 0;
+        for (int i = 0; i < POISSON_DISK_SIZE; i++) {
+            shadow += 0.25 * SampleDirectionalShadowAtlas(
+                float3(positions[i].xy, positionSTS.z)
+            );
+        }
+        return shadow;
     #else
         return SampleDirectionalShadowAtlas(positionSTS);
     #endif
@@ -118,7 +148,8 @@ float GetDirectionalShadowAttenuation (DirectionalShadowData directional, Shadow
     }
     float3 normalBias = surfaceWS.normal *
         (directional.normalBias * _CascadeData[global.cascadeIndex].y);
-    
+
+    // 특정 점의 위치를 그림자 맵에서의 좌표로 변환한 것. Shadow Texture Space (STS)
     float3 positionSTS = mul(
         _DirectionalShadowMatrices[directional.tileIndex],
         float4(surfaceWS.position + normalBias, 1.0)

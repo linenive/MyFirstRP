@@ -6,7 +6,7 @@ namespace CustomRP.Runtime
     public class ShadowSettings
     {
         public enum FilterMode {
-            PCF2x2, PCF3x3, PCF5x5, PCF7x7
+            PCF2x2, PCF3x3, PCF5x5, PCF7x7, PreSampledPoisson
         }
         
         [Min(0.001f)]

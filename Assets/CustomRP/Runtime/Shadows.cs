@@ -21,6 +21,7 @@ namespace CustomRP.Runtime
             "_DIRECTIONAL_PCF3",
             "_DIRECTIONAL_PCF5",
             "_DIRECTIONAL_PCF7",
+            "_DIRECTIONAL_POISSON"
         };
         
         static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades],
