@@ -17,6 +17,8 @@ Shader "CustomRP/Lit"
         _TestMap("Test Map", 2D) = "white" {}
         [Toggle(_HEIGHT_BRDF)] _HeightBRDF ("HeightBRDF", Float) = 0
     	[Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows ("Receive Shadows", Float) = 1
+    	[NoScaleOffset] _EmissionMap("Emission", 2D) = "white" {}
+		[HDR] _EmissionColor("Emission", Color) = (0.0, 0.0, 0.0, 0.0)
     }
     SubShader
     {
